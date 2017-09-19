@@ -26,11 +26,14 @@ defmodule Worker do
                 bitcoin = String.to_atom(bitcoin_str)
                 #sendMessage(server,{:bitcoin,bitcoin})
                 if Process.alive?(server) do
+                    count = count + 1
                     send(server,{:bitcoin,bitcoin})
+                    IO.puts "Sent a bitcoin. Total count: "
+                    IO.puts count
+                else
+                    Process.exit(self(), :normal)
                 end
-                count = count + 1
-                IO.puts "Sent a bitcoin. Total count: "
-                IO.puts count
+                
             end
             generatebitcoins(server,k,count)
     end  
