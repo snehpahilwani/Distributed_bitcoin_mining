@@ -25,10 +25,15 @@ defmodule Worker do
                 bitcoin_str = newstr <> "\t" <> hashstr
                 bitcoin = String.to_atom(bitcoin_str)
                 #sendMessage(server,{:bitcoin,bitcoin})
-                send(server,{:bitcoin,bitcoin})
-                count = count + 1
-                IO.puts "Sent a bitcoin. Total count: "
-                IO.puts count
+                if Process.alive?(server) do
+                    count = count + 1
+                    send(server,{:bitcoin,bitcoin})
+                    IO.puts "Sent a bitcoin. Total count: "
+                    IO.puts count
+                else
+                    Process.exit(self(), :normal)
+                end
+                
             end
             generatebitcoins(server,k,count)
     end  
