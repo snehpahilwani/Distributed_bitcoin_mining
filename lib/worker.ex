@@ -25,7 +25,9 @@ defmodule Worker do
                 bitcoin_str = newstr <> "\t" <> hashstr
                 bitcoin = String.to_atom(bitcoin_str)
                 #sendMessage(server,{:bitcoin,bitcoin})
-                send(server,{:bitcoin,bitcoin})
+                if Process.alive?(server) do
+                    send(server,{:bitcoin,bitcoin})
+                end
                 count = count + 1
                 IO.puts "Sent a bitcoin. Total count: "
                 IO.puts count
