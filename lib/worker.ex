@@ -13,8 +13,6 @@ defmodule Worker do
         do: x<> "0" 
     end
 
-    
-    # def loop(0,_), do: nil
 
     def generatebitcoins(server,k,count) do
             #IO.puts "Num : #{max}"
@@ -25,7 +23,7 @@ defmodule Worker do
                 bitcoin_str = newstr <> "\t" <> hashstr
                 bitcoin = String.to_atom(bitcoin_str)
                 #sendMessage(server,{:bitcoin,bitcoin})
-                if Process.alive?(server) do
+                if Process.alive?(server)=="yes" do
                     count = count + 1
                     send(server,{:bitcoin,bitcoin})
                     IO.puts "Sent a bitcoin. Total count: "
@@ -44,13 +42,19 @@ defmodule Worker do
                 msg -> IO.puts "I got a message! #{inspect msg}"
                 server = :global.whereis_name(:server)
                 generatebitcoins(server, msg,0)
+
+                Enum.each(1..9, fn(_)->
+                    spawn(fn ->
+                        generatebitcoins(server, msg,0)
+                        end)
+                  end)
         end
         checkforKmsg()
     end
 
-    def initateWorker() do
+    def initateWorker(server_ip) do
 
-        Worker.connect()
+        Worker.connect(server_ip)
 
         worker_pid = spawn(fn ->
             checkforKmsg()
@@ -68,22 +72,24 @@ defmodule Worker do
         Process.sleep(:infinity)
     end
 
-    def connect() do
-        Node.start :'worker@192.168.0.104' #this is the IP of the machine on which you run the code
+    def connect(server_ip) do
+        worker = "worker@"<>get_my_ip()
+        Node.start(String.to_atom(worker))
         Node.set_cookie :human
-        Node.connect :'server@192.168.0.100' #Enum.join
+        serverlink = "server@"<>server_ip
+        Node.connect :"#{serverlink}"
         :global.sync()
     end
 
-    # def sendMessage(server,msg) do
-    #     #:global.sync()
-    #     IO.puts "Working here 2a"
-    #     #server = :global.whereis_name(:server)
-    #     IO.puts "Working here 2b"
-    #     IO.inspect(server)
-    #     #IO.inspect(Node.list)
-    #     send(server, msg)
-    #     IO.puts "Working here3 "
-    # end
+    defp get_my_ip do
+        {os, _} = :os.type
+        {:ok, ifs} = :inet.getif()
+        ips = for {ip, _, _} <- ifs, do: to_string(:inet.ntoa(ip))
+        if Atom.to_string(os) == "unix" do
+        hd(ips)
+      else
+        List.last(ips)
+      end
+     end
 
 end
