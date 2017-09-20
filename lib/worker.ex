@@ -23,14 +23,14 @@ defmodule Worker do
                 bitcoin_str = newstr <> "\t" <> hashstr
                 bitcoin = String.to_atom(bitcoin_str)
                 #sendMessage(server,{:bitcoin,bitcoin})
-                if Process.alive?(server)=="yes" do
+                # if Process.alive?(server)=="yes" do
                     count = count + 1
                     send(server,{:bitcoin,bitcoin})
                     IO.puts "Sent a bitcoin. Total count: "
                     IO.puts count
-                else
-                    Process.exit(self(), :normal)
-                end
+                # else
+                #     Process.exit(self(), :normal)
+                # end
                 
             end
             generatebitcoins(server,k,count)
@@ -41,7 +41,7 @@ defmodule Worker do
         receive do
                 msg -> IO.puts "I got a message! #{inspect msg}"
                 server = :global.whereis_name(:server)
-                generatebitcoins(server, msg,0)
+                #generatebitcoins(server, msg,0)
 
                 Enum.each(1..9, fn(_)->
                     spawn(fn ->
