@@ -6,7 +6,7 @@ defmodule Project1 do
 
         if serveOrWork=~"." do  #argument contains IP address
 
-            #IO.puts "Worker to be initiated"
+            # Worker to be initiated
             Worker.initateWorker(serveOrWork)
 
         else        #argument contains k value hence intiate server
@@ -14,15 +14,17 @@ defmodule Project1 do
             {k, _} = Integer.parse(serveOrWork)
 
             server = spawn(fn ->
-            Server.talktoworkers(k)
+                Server.talktoworkers(k)
             end)
 
+            # Starting server
             serverlink = "server@"<>get_my_ip() 
             Node.start(String.to_atom(serverlink))
 
             Node.set_cookie :human
             :global.register_name(:server, server)
             :global.sync()
+            #Mining bitcoins on server
             Server.mineCoins(k)
             Process.sleep(:infinity)
 
@@ -31,6 +33,7 @@ defmodule Project1 do
         
     end
 
+    #helper function to get IP addresss of system the current process is running on
     defp get_my_ip do
         {os, _} = :os.type
         {:ok, ifs} = :inet.getif()

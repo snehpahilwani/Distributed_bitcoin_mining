@@ -1,38 +1,42 @@
 defmodule Worker do
     
+    # function to generate random string with gatorlink id appended
     def randomstr(length \\ 15) do
         Enum.join(["spahilwani;",:crypto.strong_rand_bytes(length) |> Base.encode64 |> binary_part(0, length)])
     end
 
+    # Generate hash for given string using SHA256
     def hashfunction(str) do
         :crypto.hash(:sha256, str) |> Base.encode16 
     end
     
+    #Generates string of k number of zeros
     def genzero(x,k) do
         for _y<-1..k,
         do: x<> "0" 
     end
 
-
+    #Generate bitcoin by trying out the strings and send to server if the valid bitcoin string
     def generatebitcoins(server,k) do
             newstr = randomstr()
             hashstr = hashfunction(newstr)
-            if String.slice(hashstr,0,k) == Enum.join(genzero("",k)) do #Genzero can be generated once in checkforKmsg and sent from there as a string. No need to generate everytime. Would optimize performance.
+            if String.slice(hashstr,0,k) == Enum.join(genzero("",k)) do 
                 bitcoin_str = newstr <> "\t" <> hashstr
                 bitcoin = String.to_atom(bitcoin_str)
-                    send(server,{:bitcoin,bitcoin})
-                    IO.puts "Sent a bitcoin."
-                
+                #Sending the found bitcoin to the server.
+                send(server,{:bitcoin,bitcoin})
             end
             generatebitcoins(server,k)
     end  
 
     def checkforKmsg() do
-        IO.puts  "Requesting server for k"
+        #"Requesting server for k"
         receive do
-                msg -> IO.puts "I got a message! #{inspect msg}"
+            msg -> 
+                #Got a message from server with k value
                 server = :global.whereis_name(:server)
 
+                #Spawning more workers to computer bitcoins parallelly and use more CPU cores.
                 Enum.each(1..9, fn(_)->
                     spawn(fn ->
                         generatebitcoins(server, msg)
@@ -51,8 +55,6 @@ defmodule Worker do
         end)
         client_string = Enum.join(["worker",:crypto.strong_rand_bytes(5) |> Base.encode64 |> binary_part(0, 5)])
         client_atom = String.to_atom(client_string)
-        IO.puts "Checking if server is alive.."
-        IO.puts Process.alive?(worker_pid)
         :global.register_name(client_atom, worker_pid)
         :global.sync()
         server = :global.whereis_name(:server)
