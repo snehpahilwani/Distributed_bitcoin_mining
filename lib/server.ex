@@ -7,10 +7,7 @@ defmodule Server do
         :crypto.hash(:sha256, str) |> Base.encode16 
     end
 
-    # def genzero(k) do
-    #     x =""
-    #     for y<-1..k, do: x<>"0"
-    # end
+    
     def genzero(x,k) do
         for y<-1..k,
         do: x<> "0" 
@@ -18,7 +15,6 @@ defmodule Server do
 
     def talktoworkers(k) do
         receive do
-            #msg -> IO.puts "I got a message! #{inspect msg}"
             {:bitcoin, response} ->
                 IO.puts "Bitcoin from worker : #{inspect response}"
             {:ready, client} ->
@@ -28,22 +24,6 @@ defmodule Server do
                 send(:global.whereis_name(client), k)
                 IO.puts client
                 IO.inspect :global.whereis_name(client)
-                #send(:global.whereis_name(:worker), k)
-
-
-            # if msg == :ready do
-            #     IO.puts "Got request from new worker. Sending k"
-            #     IO.inspect Node.list
-            #     # IO.puts :global.whereis_name(:worker)
-            #     :global.sync()
-            #     IO.puts :global.whereis_name(:worker)
-            #     send(:global.whereis_name(:worker), k)
-            #     IO.puts "sent"
-            #     IO.puts k
-            # else
-            #     IO.puts "Bitcoin from worker : #{inspect msg}"
-            # end
-
         end
         talktoworkers(k)
     end 
@@ -70,26 +50,6 @@ defmodule Server do
 
 
 end
-
-#IO.puts Server.genzero("",3)
-
-
-
-
-
-
-
-# Node.start :'server@192.168.0.106' 
-# Node.set_cookie :human
-#IO_puts "Server up. Checking for worker."
-#IO_puts Node.connect "worker@192.168.0.105"
-
-
-# node 1
-#Node.connect(:'worker@192.168.0.111')
-
-
-
 
 
 
