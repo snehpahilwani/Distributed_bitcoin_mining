@@ -32,6 +32,7 @@ defmodule Worker do
     def checkforKmsg() do
         #"Requesting server for k"
         receive do
+            msg -> 
                 #Got a message from server with k value
                 server = :global.whereis_name(:server)
 
