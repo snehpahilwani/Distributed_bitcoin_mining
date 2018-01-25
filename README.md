@@ -1,6 +1,7 @@
 # Project1
 
-**TODO: Add description**
+• A distributed client-server system to mine bitcoins using Elixir Actor Model, taking advantage of multiple multi-core machines.
+• The server mines bitcoins independently while multiple clients get connected to the server, request work from the server (leading zeros) and mine bitcoins using the SHA-256 algorithm on randomly generated strings.
 
 ## Installation
 
